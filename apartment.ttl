@@ -1,0 +1,47 @@
+@prefix yt:   <https://yutian0425.github.io/dt#> .
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix brick:<https://brickschema.org/schema/Brick#> .
+@prefix saref:<https://saref.etsi.org/core/> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+brick:hasLocation a owl:ObjectProperty .
+saref:measuresProperty a owl:ObjectProperty .
+bot:hasSubElement a owl:ObjectProperty .
+
+#########
+# BOT: topology (single storey)
+#########
+yt:Apartment_01 a bot:Building ;
+  bot:hasSubElement yt:Storey_01 .
+
+yt:Storey_01 a bot:Storey ;
+  bot:hasSubElement yt:LivingRoom, yt:MasterBedroom, yt:Bedroom, yt:Kitchen, yt:Bathroom .
+
+yt:LivingRoom    a bot:Space .
+yt:MasterBedroom a bot:Space .
+yt:Bedroom       a bot:Space .
+yt:Kitchen       a bot:Space .
+yt:Bathroom      a bot:Space .
+
+#########
+# Devices (friendly_name as canonical IDs)
+#########
+yt:bathroom_temp_humidity a brick:Temperature_Sensor ;
+  brick:hasLocation yt:Bathroom ;
+  saref:measuresProperty saref:Temperature, saref:Humidity .
+
+yt:masterbedroom_human_detection a brick:Motion_Sensor ;
+  brick:hasLocation yt:MasterBedroom ;
+  saref:measuresProperty saref:Occupancy .
+
+yt:kitchen_light_sensor a brick:Illuminance_Sensor ;
+  brick:hasLocation yt:Kitchen ;
+  saref:measuresProperty saref:Illuminance .
+
+yt:bedroom_door_window_sensor a brick:Contact_Sensor ;
+  brick:hasLocation yt:Bedroom ;
+  saref:measuresProperty saref:OpenCloseState .
+
+yt:livingroom_tem_humidity a brick:Temperature_Sensor ;
+  brick:hasLocation yt:LivingRoom ;
+  saref:measuresProperty saref:Temperature, saref:Humidity .

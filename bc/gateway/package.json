@@ -1,0 +1,8 @@
+{
+  "name": "dt-bc-gateway",
+  "private": true,
+  "dependencies": {
+    "ethers": "^6.10.0",
+    "express": "^4.19.2"
+  }
+}

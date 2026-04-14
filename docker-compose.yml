@@ -1,0 +1,96 @@
+version: '3'
+services:
+
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: always
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+
+  nodered:
+    container_name: nodered
+    image: nodered/node-red
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered:/data
+    restart: always
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: always
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt
+    container_name: zigbee2mqtt
+    depends_on:
+      - mosquitto
+    volumes:
+      - ./zigbee2mqtt:/app/data
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    restart: always
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+
+  fuseki:
+    image: stain/jena-fuseki:latest
+    container_name: fuseki
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=admin
+    volumes:
+      - ./fuseki-data:/fuseki
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin12345
+      - DOCKER_INFLUXDB_INIT_ORG=dt
+      - DOCKER_INFLUXDB_INIT_BUCKET=home
+      - DOCKER_INFLUXDB_INIT_RETENTION=30d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=dt_admin_token_please_change
+
+  hardhat:
+    build: ./bc/hardhat
+    container_name: hardhat
+    ports:
+      - "8545:8545"
+    restart: unless-stopped
+
+  bc-gateway:
+    build: ./bc/gateway
+    container_name: bc-gateway
+    environment:
+      - RPC_URL=http://hardhat:8545
+      - PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - MAINTENANCE_ADDR=0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - DEVICE_REGISTRY_ADDR=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+      - ACCESS_CONTROL_ADDR=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+    ports:
+      - "3001:3000"
+    depends_on:
+      - hardhat
+    restart: unless-stopped
