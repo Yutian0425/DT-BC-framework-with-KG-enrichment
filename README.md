@@ -45,9 +45,4 @@ The system is organised into five layers:
 
 ---
 
-## Quick Start (Reproducibility)
 
-### 1. Clone repository
-```bash
-git clone https://github.com/Yutian0425/DT-BC-framework-with-KG-enrichment
-cd DT-BC-framework-with-KG-enrichment
